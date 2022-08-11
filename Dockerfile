@@ -23,14 +23,14 @@ FROM ${BUILDER_IMAGE} as builder
 
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git \
-    && apt-get clean && rm -f /var/lib/apt/lists/*_*
+  && apt-get clean && rm -f /var/lib/apt/lists/*_*
 
 # prepare build dir
 WORKDIR /app
 
 # install hex + rebar
 RUN mix local.hex --force && \
-    mix local.rebar --force
+  mix local.rebar --force
 
 # set build ENV
 ENV MIX_ENV="prod"
@@ -78,6 +78,10 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
+# Appended by flyctl
+ENV ECTO_IPV6 true
+ENV ERL_AFLAGS "-proto_dist inet6_tcp"
+
 WORKDIR "/app"
 RUN chown nobody /app
 
@@ -90,6 +94,3 @@ COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/pet_check ./
 USER nobody
 
 CMD ["/app/bin/server"]
-# Appended by flyctl
-ENV ECTO_IPV6 true
-ENV ERL_AFLAGS "-proto_dist inet6_tcp"
